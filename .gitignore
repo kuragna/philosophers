@@ -1,3 +1,6 @@
 philo
 *.dSYM
 *.o
+main
+test.c
+
