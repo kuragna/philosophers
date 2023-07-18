@@ -3,4 +3,4 @@ philo
 *.o
 main
 test.c
-
+*.swp

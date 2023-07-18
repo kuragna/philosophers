@@ -6,84 +6,60 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:14:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/16 20:35:10 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/07/18 21:00:15 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-// NOTE:
-// 		eat: no sleep nor think
-// 		sleep: no eat nor think
-// 		think: no eat nor sleep
-// NOTE: number_of_philos = number_of_forks
-// NOTE: program how many philosophers could accept?
-// NOTE: philosophers should avoid dying.
-
-/* TODO: number_of_times_each_philosopher_must_eat (optional argument): 
-If all philosophers have eaten at least number_of_times_each_philosopher_must_eat 
-times, the simulation stops. */
-
 // TODO; check every argument if has value <= 0
 // TODO: each philosopher should be a thread
 // TODO: change errors to stderr
 // TODO: check if pthread's function failed.
+// TODO: check if input has error.
+
+typedef struct s_data
+{
+	int	time_to_eat;
+	int	time_to_sleep;
+	int	time_to_die;
+}	t_data;
 
 typedef struct s_philo
 {
-	int	number_of_philos;
-	int	time_to_die;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	optional;
+	int	id;
+	int	left_fork;
+	int	right_fork;
+	t_data data;
+	pthread_t thread;
 }	t_philo;
+
 
 void	find_leaks()
 {
 	system("leaks -q philo");
 }
 
-int	print_state(int	philo)
+time_t	get_time(void)
 {
 	struct timeval	tv;
-	time_t	current_time;
 
 	if (gettimeofday(&tv, NULL) == -1)
 		return (-1);
-	current_time = tv.tv_sec;
-	printf("%zu ms %d has taken a fork\n", current_time, philo);
-	printf("%zu ms %d is eating\n", current_time, philo);
-	printf("%zu ms %d is sleeping\n", current_time, philo);
-	printf("%zu ms %d is thinking\n", current_time, philo);
-	printf("%zu ms %d died\n", current_time, philo);
-	return (0);
+	return (tv.tv_sec);
 }
 
-void	print_value(t_philo philo)
-{
-	printf("--------------------------------\n");
-	printf("number_of_philos: %d\n", philo.number_of_philos);
-	printf("time_to_die: %d\n", philo.time_to_die);
-	printf("time_to_eat: %d\n", philo.time_to_eat);
-	printf("time_to_sleep: %d\n", philo.time_to_sleep);
-	printf("number_of_times_each_philo: %d\n", philo.optional);
-	printf("--------------------------------\n");
-}
+// void	print_value(t_data data)
+// {
+// 	printf("--------------------------------\n");
+// 	printf("number_of_datas: %d\n", data.number_of_philos);
+// 	printf("time_to_die: %d\n", data.time_to_die);
+// 	printf("time_to_eat: %d\n", data.time_to_eat);
+// 	printf("time_to_sleep: %d\n", data.time_to_sleep);
+// 	printf("number_of_times_each_data: %d\n", data.optional);
+// 	printf("--------------------------------\n");
+// }
 
-t_philo	*philo_init(char **args)
-{
-	t_philo *philo;
-
-	philo = malloc(sizeof(*philo));
-	if (!philo)
-		return (NULL);
-	philo->number_of_philos = ft_atoi(args[NUMBER_OF_PHILOS]);
-	philo->time_to_die = ft_atoi(args[TIME_TO_DIE]);
-	philo->time_to_eat = ft_atoi(args[TIME_TO_EAT]);
-	philo->time_to_sleep = ft_atoi(args[TIME_TO_SLEEP]);
-	philo->optional = ft_atoi(args[OPTIONAL]);
-	return (philo);
-}
 
 int	parse_input(char **args)
 {
@@ -104,113 +80,85 @@ int	parse_input(char **args)
 	return (TRUE);
 }
 
-//		0		1			 2			 3				4		   5
-// ./philo nb_of_philos  time_to_die time_to_eat time_to_sleep [optional]
-
-
-// time_to_sleep: The time a philosoper spend sleeping
-// time_to_eat: The time a philosoper spend eating, need to hold 2 forks.
-// range(1, number_of_philosopers)
-
-int main2(int argc, char **argv)
+void	pick_left_fork()
 {
-	t_philo *philo;
-
-	if (!parse_input(argv + 1))
-	{
-		printf("Error: Invalid argument\n");
-		return (1);
-	}
-	philo = philo_init(argv + 1);
-	if ((argc - 1) == 4) // philo without optional
-	{
-		print_value(*philo);
-		printf("philo without optional\n");
-	}
-	else if ((argc - 1) == 5) // philo with optional
-	{
-		print_value(*philo);
-		printf("philo with optional\n");
-	}
-	else
-	{
-		printf("Usage: ./philo number_of_philos time_to_die time_to_eat time_to_sleep [optional]\n");
-		return (1);
-	}
-
-	return (0);
+	printf("Not implemented yet\n");
 }
 
-
-void	pick_right_fork(int philo_id)
+void	philo_sleep(int time_to_sleep, int id)
 {
-	printf("philo's %d picked up right fork\n", philo_id);
+	printf("%zu %d is sleeping\n", get_time(), id);
+	usleep(time_to_sleep);
 }
 
-void	pick_left_fork(int philo_id)
+void	philo_eat(int time_to_eat, int id)
 {
-	printf("philo's %d picked up left fork\n", philo_id);
-}
-
-void	put_left_fork(int philo_id)
-{
-	printf("philo's %d put down left fork\n", philo_id);
-}
-
-void	put_right_fork(int philo_id)
-{
-	printf("philo's %d put down right fork\n", philo_id);
-}
-
-typedef struct
-{
-	int	philo_id;
-	int	time_to_sleep;
-	int	time_to_eat;
-	int	left_fork;
-	int	right_fork;	
-	int	is_eat;
-	int	is_think;
-	int	is_sleep;
-} Philo;
-
-void	philo_eat(int time_to_eat)
-{
-	(void)time_to_eat;
-	printf("Philo start eat\n");
-	sleep(1);
-	printf("Philo finished eat\n");
-}
-
-void	philo_sleep(int time_to_sleep)
-{
-	(void)time_to_sleep;	
-	printf("Philo start sleep\n");
-	sleep(1);
-	printf("Philo woke up\n");
+	printf("%zu %d is eating\n", get_time(), id);
+	usleep(time_to_eat);
 }
 
 void	*start_routine(void *arg)
 {
-	Philo philo = *(Philo *)arg;
+	t_philo *philo = (t_philo*)arg;
 	while (1)
 	{
-		philo_eat(philo.time_to_eat);
-		philo_sleep(philo.time_to_sleep);
+		philo_eat(philo->data.time_to_eat, philo->id);
+		philo_sleep(philo->data.time_to_sleep, philo->id);
 	}
 	return (NULL);
 }
 
-
-int main(void)
+int	philo_join(t_philo *philo, const int number_of_philos)
 {
-	Philo philo = {0};
-	pthread_t	thread;
+	int	i;
 
-	philo.time_to_sleep = 6427;
-	philo.time_to_eat = 5638;
-	pthread_create(&thread, NULL, start_routine, &philo);
-	pthread_join(thread, NULL);
-	return 0;
+	i = 0;
+	while (i < number_of_philos)
+	{
+		if (pthread_join(philo[i].thread, NULL) == -1)
+			return (FALSE);
+		i++;
+	}
+	return (TRUE);
 }
 
+int	philo_create(char **args, const int number_of_philos)
+{
+	const int	time_to_eat  = ft_atoi(args[TIME_TO_EAT]);
+	const int	time_to_sleep = ft_atoi(args[TIME_TO_SLEEP]);
+	const int	time_to_die = ft_atoi(args[TIME_TO_DIE]);
+	int	i;
+	t_philo	*philo;
+
+
+	i = 0;
+	philo = malloc(sizeof(*philo) * number_of_philos);
+	if (!philo)
+		return (FALSE);
+	while (i < number_of_philos)
+	{
+		philo[i].id = (i + 1);
+		philo[i].data.time_to_die = time_to_die;
+		philo[i].data.time_to_eat = time_to_eat;
+		philo[i].data.time_to_sleep = time_to_sleep;
+		if (pthread_create(&philo[i].thread, NULL, start_routine, &philo[i]) == -1)
+			return (FALSE);
+		i++;
+	}
+	philo_join(philo, number_of_philos);
+	return (TRUE);
+}
+
+
+
+int main(int argc, char **argv)
+{
+	if (argc != 5 || !parse_input(argv + 1))
+	{
+		printf("Error: Invalid arguments\n");
+		return (1);
+	}
+	const int number_of_philos = ft_atoi(argv[1]);
+	philo_create(argv + 1, number_of_philos);
+	return (0);
+}
