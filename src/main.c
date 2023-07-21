@@ -3,37 +3,50 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:14:08 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/18 21:00:15 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/07/21 18:20:42 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
+#include <errno.h>
+
+#define MUTEX_INIT(mutex) pthread_mutex_init(&mutex, NULL)
+#define LOCK(mutex) pthread_mutex_lock(&mutex)
+#define UNLOCK(mutex) pthread_mutex_unlock(&mutex)
+#define JOIN(thread) pthread_join(thread, NULL)
 
 // TODO; check every argument if has value <= 0
 // TODO: each philosopher should be a thread
 // TODO: change errors to stderr
-// TODO: check if pthread's function failed.
-// TODO: check if input has error.
+
+enum	e_philo
+{
+	TIME_TO_DIE = 0,
+	TIME_TO_EAT,
+	TIME_TO_SLEEP,
+	TIME_TO_THINK,
+};
+
+typedef struct s_philo
+{	
+	int			id;
+	int			*times;
+	int			*forks;
+	pthread_mutex_t	*mutex_ptr;
+	pthread_t	thread;
+}	t_philo;
 
 typedef struct s_data
 {
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	time_to_die;
+	int	times[4];
+	int	number_of_philos;
+	int	forks;
+	pthread_mutex_t	mutex;
+	t_philo *philos;
 }	t_data;
-
-typedef struct s_philo
-{
-	int	id;
-	int	left_fork;
-	int	right_fork;
-	t_data data;
-	pthread_t thread;
-}	t_philo;
-
 
 void	find_leaks()
 {
@@ -48,18 +61,6 @@ time_t	get_time(void)
 		return (-1);
 	return (tv.tv_sec);
 }
-
-// void	print_value(t_data data)
-// {
-// 	printf("--------------------------------\n");
-// 	printf("number_of_datas: %d\n", data.number_of_philos);
-// 	printf("time_to_die: %d\n", data.time_to_die);
-// 	printf("time_to_eat: %d\n", data.time_to_eat);
-// 	printf("time_to_sleep: %d\n", data.time_to_sleep);
-// 	printf("number_of_times_each_data: %d\n", data.optional);
-// 	printf("--------------------------------\n");
-// }
-
 
 int	parse_input(char **args)
 {
@@ -80,9 +81,17 @@ int	parse_input(char **args)
 	return (TRUE);
 }
 
-void	pick_left_fork()
+
+void	philo_pick_fork(t_philo *philo)
 {
+	(void)philo;
 	printf("Not implemented yet\n");
+}
+
+void	philo_think(int time_to_think, int id)
+{
+	printf("%zu %d is thinking\n", get_time(), id);
+	usleep(time_to_think);
 }
 
 void	philo_sleep(int time_to_sleep, int id)
@@ -95,70 +104,72 @@ void	philo_eat(int time_to_eat, int id)
 {
 	printf("%zu %d is eating\n", get_time(), id);
 	usleep(time_to_eat);
+	// NOTE: maybe we need to call philo_think after eat
 }
 
-void	*start_routine(void *arg)
+void	*philo_routine(void *arg)
 {
 	t_philo *philo = (t_philo*)arg;
+
 	while (1)
 	{
-		philo_eat(philo->data.time_to_eat, philo->id);
-		philo_sleep(philo->data.time_to_sleep, philo->id);
+		philo_pick_fork(philo);
+		sleep(1);
+// 		philo_eat(philo->times[TIME_TO_EAT], philo->id);
+// 		philo_sleep(philo->times[TIME_TO_SLEEP], philo->id);
 	}
 	return (NULL);
 }
 
-int	philo_join(t_philo *philo, const int number_of_philos)
+#define GET_ARG(time) ft_atoi(args[time])
+
+t_data	*philo_init(char **args, const int number_of_philos)
+{
+	int	i;
+	t_data	*data;
+
+	i = -1;
+	data = malloc(sizeof(*data));
+	data->times[TIME_TO_DIE] = GET_ARG(TIME_TO_DIE);
+	data->times[TIME_TO_EAT] = GET_ARG(TIME_TO_EAT);
+	data->times[TIME_TO_SLEEP] = GET_ARG(TIME_TO_SLEEP);
+	data->times[TIME_TO_THINK] = 4242;
+	data->philos = malloc(sizeof(*data->philos) * number_of_philos);
+	data->number_of_philos = number_of_philos;
+// 	data->forks = number_of_philos;
+	while (++i < number_of_philos)
+	{
+		data->philos[i].id = i + 1;
+		data->philos[i].times = data->times;
+		data->philos[i].forks = &data->forks;
+		data->philos[i].mutex_ptr = &data->mutex;
+		pthread_create(&data->philos[i].thread, NULL, philo_routine, data->philos + i);
+	}
+	MUTEX_INIT(data->mutex);
+	return data;
+}
+
+int	philo_join(t_data *data)
 {
 	int	i;
 
 	i = 0;
-	while (i < number_of_philos)
+	while (i < data->number_of_philos)
 	{
-		if (pthread_join(philo[i].thread, NULL) == -1)
-			return (FALSE);
-		i++;
+		if (JOIN(data->philos[i].thread) == -1)
+			return (0);
 	}
-	return (TRUE);
+	return (1);
 }
-
-int	philo_create(char **args, const int number_of_philos)
-{
-	const int	time_to_eat  = ft_atoi(args[TIME_TO_EAT]);
-	const int	time_to_sleep = ft_atoi(args[TIME_TO_SLEEP]);
-	const int	time_to_die = ft_atoi(args[TIME_TO_DIE]);
-	int	i;
-	t_philo	*philo;
-
-
-	i = 0;
-	philo = malloc(sizeof(*philo) * number_of_philos);
-	if (!philo)
-		return (FALSE);
-	while (i < number_of_philos)
-	{
-		philo[i].id = (i + 1);
-		philo[i].data.time_to_die = time_to_die;
-		philo[i].data.time_to_eat = time_to_eat;
-		philo[i].data.time_to_sleep = time_to_sleep;
-		if (pthread_create(&philo[i].thread, NULL, start_routine, &philo[i]) == -1)
-			return (FALSE);
-		i++;
-	}
-	philo_join(philo, number_of_philos);
-	return (TRUE);
-}
-
-
-
 int main(int argc, char **argv)
 {
 	if (argc != 5 || !parse_input(argv + 1))
 	{
-		printf("Error: Invalid arguments\n");
+		printf("Error: %s\n", strerror(EINVAL));
 		return (1);
 	}
-	const int number_of_philos = ft_atoi(argv[1]);
-	philo_create(argv + 1, number_of_philos);
+	int	number_of_philos = ft_atoi(argv[1]);
+	t_data *data = philo_init(argv + 2, number_of_philos);
+	philo_join(data);
 	return (0);
 }
