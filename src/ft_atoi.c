@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 18:50:47 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/08 17:35:19 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/07/16 16:43:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,8 @@ int	ft_atoi(const char *str)
 	int	i;
 	int	sign;
 
+	if (!str)
+		return (0);
 	i = 0;
 	sign = 1;
 	re = 0;
