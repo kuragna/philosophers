@@ -6,13 +6,13 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:37:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/31 17:13:23 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/07/31 20:27:34 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-pthread_mutex_t	*mutex_init(const int size)
+pthread_mutex_t	*philo_mutex_init(const int size)
 {
 	int	i;
 	pthread_mutex_t	*mutexes;
