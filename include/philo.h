@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/01 17:56:32 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/11 13:35:38 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@
 #define NUMBER_ARGS (3)
 #define GET_ARG(time) ft_atoi(args[time])
 
-#define ERROR(str) printf("Error: %s\n", str) // change it to stderr
+typedef pthread_mutex_t	t_mutex;
+typedef void *(*t_func_ptr)(void *);
 
 enum	e_philo_input
 {
@@ -39,14 +40,17 @@ enum	e_philo_input
 
 typedef struct s_data
 {
-	int	number_of_philos;
-	int	time_to_eat;
-	int	time_to_sleep;
-	int	time_to_think;
-	int	time_to_die;
-	int notepme;
-	int	*forks;
-	pthread_mutex_t	*mutex_forks;
+	size_t	number_of_philos;
+	size_t	time_to_eat;
+	size_t	time_to_sleep;
+	size_t	time_to_think;
+	size_t	time_to_die;
+	size_t	notepme;
+	size_t	started_time;
+	int		should_stop;
+	int		*turn;
+	t_mutex	*forks;
+	t_func_ptr routine;
 }	t_data;
 
 typedef struct s_philo
@@ -54,28 +58,28 @@ typedef struct s_philo
 	int			id;
 	int 		right_hand;
 	int 		left_hand;
-	pthread_mutex_t	right_fork;
-	pthread_mutex_t	left_fork;
+	size_t		last_meal;
 	t_data		*data;
 	pthread_t	thread;
 }	t_philo;
 
 
-int				*philo_fill(int n, size_t size);
-int				philo_join(t_philo *philos, const int number_of_philos);
-void			philo_eat(t_philo *philo);
-void			philo_die(t_philo *philo);
-void			philo_think(t_philo *philo);
-void			philo_sleep(t_philo *philo);
-time_t			philo_time(void);
+int		philo_get_data(t_data *data, char **argv);
+int	  	*philo_fill(int n, size_t size);
+int	  	philo_join(t_philo *philos, const int number_of_philos);
+void  	philo_eat(t_philo *philo);
+void  	philo_die(t_philo *philo);
+void  	philo_think(t_philo *philo);
+void  	philo_sleep(t_philo *philo);
+void	*philo_routine(void *arg);
+void	*philo_routine_each_time(void *arg);
+time_t	philo_time(void);
 
-pthread_mutex_t	*philo_mutex_init(const int size);
-t_data			*philo_set_data(char **args);
-int				ft_atoi(const char *str);
-int				ft_isdigit(int c);
-int				philo_parse_input(char **args);
-void			philo_fokrs_status(t_philo *philo);
+t_mutex	*philo_mutex_init(const int size);
+int		ft_atoi(const char *str);
+int		philo_parse_input(char **args);
+void	philo_fokrs_status(t_philo *philo);
 
-void			find_leaks(void);
+void	find_leaks(void);
 
 #endif // PHILO_H

@@ -6,14 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/08 19:47:36 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/11 14:12:59 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-
-// TODO: make a loop.
-// TODO: check if number_of_philos is 0
 
 int	philo_get_data(t_data *data, char **args)
 {
@@ -23,13 +20,13 @@ int	philo_get_data(t_data *data, char **args)
 	data->time_to_eat = GET_ARG(T_EAT) * milli_sec;
 	data->time_to_sleep = GET_ARG(T_SLEEP) * milli_sec;
 	data->time_to_die = GET_ARG(T_DIE) * milli_sec;
-	data->time_to_think = ((data->time_to_eat * 2) - data->time_to_sleep) * milli_sec;
+	data->time_to_think = (data->time_to_eat * 2) - data->time_to_sleep;
 
 	data->started_time = philo_time();
 
 	data->notepme = GET_ARG(NOTEPME);
 
-	data->stop = 0;
+	data->should_stop = 0;
 
 	data->forks = philo_mutex_init(data->number_of_philos); // check errors.
 	if (data->forks == NULL)
@@ -38,9 +35,10 @@ int	philo_get_data(t_data *data, char **args)
 	if (data->turn == NULL)
 		return (1);
 
-	data->func_ptr = philo_routine;
+	data->routine = philo_routine;
 
 	if (data->notepme)
-		data->func_ptr = philo_routine_each_time;
+		data->routine = philo_routine_each_time;
 	return (0);
 }
+

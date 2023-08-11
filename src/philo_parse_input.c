@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:42:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/31 20:24:20 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/11 13:08:31 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ int	philo_parse_input(char **args)
 		str = args[i];
 		while (*str)
 		{
-			if (!ft_isdigit(*str))
+			if (!(48 <= *str && 57 >= *str))
 				return (0);
 			str++;
 		}
