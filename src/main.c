@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 20:46:16 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 16:07:01 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/12 17:10:01 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,12 +28,8 @@ FILE	*philo_out;
 #define PICK_RIGHT() philo_pick_fork(philo->id, RIGHT, &philo->right_hand, philo->data)
 #define PICK_LEFT() philo_pick_fork(philo->id, LEFT, &philo->left_hand, philo->data)
 
-#define PRINT(str) printf("%ld %d %s\n", current_time, id, str)
+//#define PRINT(str) printf("%ld %d %s\n", current_time, id, str)
 
-size_t	philo_time_input(int *time, int flag)
-{
-	return (time[flag]);
-}
 
 void	philo_pick_fork(int id, int idx, int *hand, t_data *data)
 {
@@ -43,11 +39,9 @@ void	philo_pick_fork(int id, int idx, int *hand, t_data *data)
 
 	if (*hand)
 		return ;
-	(void)id;
 	pthread_mutex_lock(data->forks + idx);
 	*hand = 1;
-// 	printf("%ld %d has taken a fork\n", philo_time(data->started_time), id);
-	PRINT("has taken a fork");
+	printf("%ld %d has taken a fork\n", philo_time(data->started_time), id);
 }
 
 typedef void (*t_callback)(int, int, int*, t_data*);
@@ -56,8 +50,6 @@ void	philo_eat(t_philo *philo, t_callback callback)
 {
 	const int right = philo->id % philo->data->number_of_philos;
 	const int left = philo->id - 1;
-	size_t	current_time;
-	int		id;
 
 	if (philo->id % 2 == 0)
 	{
@@ -72,11 +64,9 @@ void	philo_eat(t_philo *philo, t_callback callback)
 
 	if (!philo->right_hand || !philo->left_hand)
 		return ;
-	id = philo->id;
-	current_time = philo_time(philo->data->started_time);
-// 	printf("%ld %d is eating\n", philo_time(philo->data->started_time), philo->id);
-	PRINT("is eating");
-	usleep(philo->data->time_to_eat * 1000);
+
+	printf("%ld %d is eating\n", philo_time(philo->data->started_time), philo->id);
+	usleep(philo->data->time_to_eat * M_SEC);
 
 	philo->has_ate = 1;
 
@@ -93,22 +83,27 @@ void	philo_eat(t_philo *philo, t_callback callback)
 
 void	philo_sleep_think(t_philo *philo)
 {
-	size_t current_time;
-	int	id;
+	const size_t started_time = philo->data->started_time;
 
 	if (!philo->has_ate)
 		return ;
 
-	id = philo->id;
-	current_time = philo_time(philo->data->started_time);
-	PRINT("is sleeping");
-// 	printf("%ld %d is sleeping\n", philo_time(started_time), philo->id);
-	usleep(philo->data->time_to_sleep * 1000);
-	id = philo->id;
-	current_time = philo_time(philo->data->started_time);
-// 	printf("%ld %d is thinking\n", philo_time(started_time), philo->id);
-	usleep(philo->data->time_to_think * 1000);
+	printf("%ld %d is sleeping\n", philo_time(started_time), philo->id);
+	usleep(philo->data->time_to_sleep * M_SEC);
+	printf("%ld %d is thinking\n", philo_time(started_time), philo->id);
+// 	usleep(philo->data->time_to_think * M_SEC);
 	philo->has_ate = 0;
+}
+
+void	check_death(t_philo *philo)
+{
+	const size_t started_time = philo->data->started_time;
+
+	if (philo_time(started_time) - philo->data->time_to_eat > philo->data->time_to_die)	
+	{
+		printf("%ld %d is died\n", philo_time(started_time), philo->id);
+		philo->data->should_stop = 1;	
+	}
 }
 
 void	*philo_routine(void *arg)
@@ -142,7 +137,6 @@ int	philo_init(char **args)
 		philos[i].right_hand = 0;
 		philos[i].left_hand = 0;
 		philos[i].has_ate = 0;
-
 		i += 1;
 	}
 
@@ -161,7 +155,7 @@ int	philo_init(char **args)
 int main(int argc, char **argv)
 {
 	const int err = philo_parse_input(argv + 1);
-	philo_out = fopen("philo_out.txt", "w");
+	philo_out = fopen("philo_output.txt", "w");
 
 	if (err)
 	{
