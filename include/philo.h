@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 16:00:13 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/12 18:50:35 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,11 +25,11 @@
 #define ARGS 4
 #define GET_ARG(time) ft_atoi(args[time])
 
+#define M_SEC 1000
+
 #define RIGHT philo->id % philo->data->number_of_philos
 #define LEFT philo->id - 1
 
-typedef pthread_mutex_t	t_mutex;
-typedef void *(*t_func_ptr)(void *);
 
 enum
 {
@@ -40,6 +40,9 @@ enum
 	NOTEPME,
 	T_THINK,
 };
+
+typedef pthread_mutex_t	t_mutex;
+typedef void *(*t_func_ptr)(void *);
 
 typedef struct s_data
 {
@@ -66,24 +69,28 @@ typedef struct s_philo
 	pthread_t	thread;
 }	t_philo;
 
+typedef void (*t_callback)(int, int, int*, t_data*);
+
 void	philo_pick_fork(int id, int idx, int *hand, t_data *data);
 void	philo_sleep_think(t_philo *philo);
 
 int		philo_get_data(t_data *data, char **argv);
 int	  	*philo_fill(int n, size_t size);
 int	  	philo_join(t_philo *philos, const int number_of_philos);
-// void  	philo_eat(t_philo *philo);
+
+
+void	philo_eat(t_philo *philo, t_callback callback);
 void  	philo_die(t_philo *philo);
 void  	philo_think(t_philo *philo);
 void  	philo_sleep(t_philo *philo);
 void	*philo_routine(void *arg);
 void	*philo_routine_each_time(void *arg);
-// time_t	philo_time(void);
+
 size_t	philo_time(size_t started_time);
 
 t_mutex	*philo_mutex_init(const int size);
 int		ft_atoi(const char *str);
-int		philo_parse_input(char **args);
+// int		philo_parse_input(char **args);
 void	philo_fokrs_status(t_philo *philo);
 
 void	find_leaks(void);
