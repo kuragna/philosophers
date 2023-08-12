@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/11 14:12:59 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/12 16:00:53 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,27 +14,19 @@
 
 int	philo_get_data(t_data *data, char **args)
 {
-	const int	milli_sec = 1000;
-
 	data->number_of_philos = GET_ARG(NUMBER_OF_PHILOS);
-	data->time_to_eat = GET_ARG(T_EAT) * milli_sec;
-	data->time_to_sleep = GET_ARG(T_SLEEP) * milli_sec;
-	data->time_to_die = GET_ARG(T_DIE) * milli_sec;
+	data->time_to_eat = GET_ARG(T_EAT);
+	data->time_to_sleep = GET_ARG(T_SLEEP);
+	data->time_to_die = GET_ARG(T_DIE);
 	data->time_to_think = (data->time_to_eat * 2) - data->time_to_sleep;
-
-	data->started_time = philo_time();
-
 	data->notepme = GET_ARG(NOTEPME);
 
+	data->started_time = philo_time(0);
+	
 	data->should_stop = 0;
-
-	data->forks = philo_mutex_init(data->number_of_philos); // check errors.
+	data->forks = philo_mutex_init(data->number_of_philos);
 	if (data->forks == NULL)
 		return (1);
-	data->turn = malloc(sizeof(*data->turn) * data->number_of_philos);
-	if (data->turn == NULL)
-		return (1);
-
 	data->routine = philo_routine;
 
 	if (data->notepme)
