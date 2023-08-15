@@ -6,18 +6,20 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 18:58:45 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/14 20:20:11 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-static int philo_parse_input(char **args)
+static int philo_parse_input(char **args, const int n)
 {
 	char	*str;
 	int		i;
 
 	i = 0;
+	if (n < 4 || n > 5)
+		return (0);
 	while (args[i] != NULL)
 	{
 		str = args[i];
@@ -32,9 +34,9 @@ static int philo_parse_input(char **args)
 	return (1);
 }
 
-int	philo_get_data(t_data *data, char **args)
+int	philo_get_data(t_data *data, char **args, const int n)
 {
-	if (!philo_parse_input(args))
+	if (!philo_parse_input(args, n))
 		return (0);
 	data->number_of_philos = GET_ARG(NUMBER_OF_PHILOS);
 	data->time_to_eat = GET_ARG(T_EAT);
@@ -49,8 +51,8 @@ int	philo_get_data(t_data *data, char **args)
 	data->notepme = GET_ARG(NOTEPME);
 
 	data->started_time = philo_time(0);
-	
 	data->should_stop = 0;
+	
 	data->forks = philo_mutex_init(data->number_of_philos);
 	if (data->forks == NULL)
 		return (0);

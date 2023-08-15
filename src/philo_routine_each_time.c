@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/06 14:58:41 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 13:50:48 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/14 14:05:58 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ void	*philo_routine_each_time(void *arg)
 	philo = arg;
 	while (i < philo->data->notepme) // add condition if philosopher dies
 	{
-// 		philo_eat(phil);
+		philo_eat(philo);
 		philo_sleep_think(philo);
 		i += 1;
 	}

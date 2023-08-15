@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 18:50:35 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/14 20:07:30 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 #define LEFT philo->id - 1
 
 
-enum
+enum e_philo_input
 {
 	NUMBER_OF_PHILOS = 0,
 	T_DIE,
@@ -54,7 +54,9 @@ typedef struct s_data
 	size_t	notepme;
 	size_t	started_time;
 	int		should_stop;
-	t_mutex	*forks;
+	t_mutex		last_meal_mutex;
+	t_mutex		should_stop_mutex;
+	t_mutex		*forks;
 	t_func_ptr routine;
 }	t_data;
 
@@ -65,33 +67,30 @@ typedef struct s_philo
 	int 		left_hand;
 	int			has_ate;
 	size_t		last_meal;
+	size_t		died_time;
 	t_data		*data;
 	pthread_t	thread;
 }	t_philo;
 
-typedef void (*t_callback)(int, int, int*, t_data*);
-
 void	philo_pick_fork(int id, int idx, int *hand, t_data *data);
 void	philo_sleep_think(t_philo *philo);
 
-int		philo_get_data(t_data *data, char **argv);
+
+int		philo_get_data(t_data *data, char **args, const int n);
 int	  	*philo_fill(int n, size_t size);
-int	  	philo_join(t_philo *philos, const int number_of_philos);
+int	  	philo_join(t_philo *philos);
 
 
-void	philo_eat(t_philo *philo, t_callback callback);
-void  	philo_die(t_philo *philo);
-void  	philo_think(t_philo *philo);
-void  	philo_sleep(t_philo *philo);
+void	philo_eat(t_philo *philo);
 void	*philo_routine(void *arg);
 void	*philo_routine_each_time(void *arg);
+
+void	philo_reset_mem(t_philo *philo);
 
 size_t	philo_time(size_t started_time);
 
 t_mutex	*philo_mutex_init(const int size);
 int		ft_atoi(const char *str);
-// int		philo_parse_input(char **args);
-void	philo_fokrs_status(t_philo *philo);
 
 void	find_leaks(void);
 

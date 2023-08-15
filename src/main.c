@@ -6,30 +6,11 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/08 20:46:16 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/12 18:56:25 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/14 20:48:58 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
-
-// NOTE: philosephers can't pick up two fork at the same time.
-// NOTE: they can't pick up a fork if already with another philosopher.
-// NOTE: try to pick up a fork if there are two or by using odd and even
-// NOTE: number of philosphers can eat at same time N/2
-// NOTE: make sure program works if optional argument is 0
-// TODO: check usleep for errors.
-// TODO: don't allocate memory if number_of_philos is 0
-// NOTE: how can one philospher die if he trying pocked up left fork
-
-
-t_mutex *test;
-FILE	*philo_out;
-
-#define PICK_RIGHT() philo_pick_fork(philo->id, RIGHT, &philo->right_hand, philo->data)
-#define PICK_LEFT() philo_pick_fork(philo->id, LEFT, &philo->left_hand, philo->data)
-
-//#define PRINT(str) printf("%ld %d %s\n", current_time, id, str)
-
 
 void	philo_pick_fork(int id, int idx, int *hand, t_data *data)
 {
@@ -45,8 +26,7 @@ void	philo_pick_fork(int id, int idx, int *hand, t_data *data)
 	printf("%ld %d has taken a fork\n", philo_time(data->started_time), id);
 }
 
-
-void	philo_eat(t_philo *philo, t_callback callback)
+void	philo_eat(t_philo *philo)
 {
 	const int right = philo->id % philo->data->number_of_philos;
 	const int left = philo->id - 1;
@@ -54,13 +34,13 @@ void	philo_eat(t_philo *philo, t_callback callback)
 
 	if (philo->id % 2 == 0)
 	{
-		callback(philo->id, left, &philo->left_hand, philo->data);
-		callback(philo->id, right, &philo->right_hand, philo->data);
+		philo_pick_fork(philo->id, left, &philo->left_hand, philo->data);
+		philo_pick_fork(philo->id, right, &philo->right_hand, philo->data);
 	}
 	else
 	{
-		callback(philo->id, right, &philo->right_hand, philo->data);
-		callback(philo->id, left, &philo->left_hand, philo->data);
+		philo_pick_fork(philo->id, right, &philo->right_hand, philo->data);
+		philo_pick_fork(philo->id, left, &philo->left_hand, philo->data);
 	}
 
 	if (!philo->right_hand || !philo->left_hand)
@@ -80,10 +60,6 @@ void	philo_eat(t_philo *philo, t_callback callback)
 	philo->left_hand = 0;
 }
 
-// time = curr_time - started_time
-// time - time_to_eat > time_to_die ---> dies
-
-
 void	philo_sleep_think(t_philo *philo)
 {
 	const size_t started_time = philo->data->started_time;
@@ -99,80 +75,103 @@ void	philo_sleep_think(t_philo *philo)
 	philo->has_ate = 0;
 }
 
-void	print_test(t_philo *philo)
-{
-	printf("-----------------------------------\n");
-	printf("last meal  : %ld\n", philo->last_meal);
-	printf("time_to_die: %ld\n", philo->data->time_to_die);
-	printf("current    : %ld\n", philo_time(philo->data->started_time));
-	printf("%ld\n", philo_time(philo->data->started_time) - philo->last_meal);
-	printf("-----------------------------------\n");
-}
-
-void	check_death(t_philo *philo)
-{
-	const size_t started_time = philo->data->started_time;
-	if (philo_time(started_time) - philo->last_meal >= philo->data->time_to_die)
-	{
-		printf("here\n");
-	}
-}
-
 void	*philo_routine(void *arg)
 {
 	t_philo	*philo = arg;
 
+	pthread_mutex_lock(&philo->data->should_stop_mutex);
 	while (!philo->data->should_stop)
 	{
-		philo_eat(philo, philo_pick_fork);
+		pthread_mutex_unlock(&philo->data->should_stop_mutex);
+		philo_eat(philo);
 		philo_sleep_think(philo);
-		check_death(philo);
 	}
 	return (NULL);
 }
 
+// NOTE: We have a data race to following variables:
+// 		 should_stop and last_meal_mutex.
+
+FILE	*out;
+
+void	*philo_death(t_philo *philo)
+{
+	size_t	i;
+	t_data	*data;
+
+	i = 0;
+	data = philo->data;
+	while (!philo[i].data->should_stop)//!philo->data->should_stop)
+	{
+		while (i < data->number_of_philos)
+		{
+			pthread_mutex_lock(&data->last_meal_mutex);
+			if (philo_time(data->started_time) - philo[i].last_meal >= data->time_to_die)
+			{
+				printf("%ld %d is died\n", philo_time(data->started_time), philo[i].id);
+				pthread_mutex_lock(&data->should_stop_mutex);
+				philo[i].data->should_stop = 1;
+				pthread_mutex_unlock(&data->should_stop_mutex);
+// 				pthread_detach(philo[i].thread);
+// 				return (NULL);
+				break;
+			}
+			pthread_mutex_unlock(&data->last_meal_mutex);
+			i += 1;
+		}
+		i = 0;
+	}
+	return NULL;
+}
 
 int	philo_init(t_data *data)
 {
 	size_t	i;
-	t_philo *philos;
+	t_philo *philo;
 
-	philos = malloc(sizeof(*philos) * data->number_of_philos);
-	if (philos == NULL)
+	philo = malloc(sizeof(*philo) * data->number_of_philos);
+	if (philo == NULL)
 		return (0);
+
 	i = 0;
+
+	pthread_mutex_init(&data->last_meal_mutex, NULL);
+	pthread_mutex_init(&data->should_stop_mutex, NULL);
+
 	while (i < data->number_of_philos)
 	{
-		philos[i].id = i + 1;
-		philos[i].data = data;
-		philos[i].right_hand = 0;
-		philos[i].left_hand = 0;
-		philos[i].has_ate = 0;
+		philo[i].id = i + 1;
+		philo[i].data = data;
+		philo[i].right_hand = 0;
+		philo[i].left_hand = 0;
+		philo[i].has_ate = 0;
 
-		pthread_create(&philos[i].thread, NULL, data->routine, philos + i); // check for errors
+		// TODO: check if returns nonzero.
+		pthread_create(&philo[i].thread, NULL, data->routine, philo + i);
 		i += 1;
 	}
-	if (philo_join(philos, data->number_of_philos) == -1)
-		return (0);
+	philo_death(philo);
+	// TODO: check if returns nonzero.
+// 	if (!philo_join(philo))
+// 		return (0);
+// 	philo_reset_mem(philo);
 	return (1);
 }
 
-
 int main(int argc, char **argv)
 {
-	atexit(find_leaks);
+	out = fopen("out.txt", "w");
 	t_data data;
-	const int err = philo_get_data(&data, argv + 1);
-	philo_out = fopen("philo_output.txt", "w");
+	const int err = philo_get_data(&data, argv + 1, argc - 1);
 
 	if (err)
 	{
-		if (--argc == 4 || argc == 5)
-			philo_init(&data); // without optional
-		else
-			printf("Error: Invalid arguments\n");
+		philo_init(&data);
 	}
 	else
+	{
 		printf("Error: Invalid arguments\n");
+		return (1);
+	}
 	return (0);
 }
