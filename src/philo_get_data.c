@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/14 20:20:11 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/17 13:34:34 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,12 +38,12 @@ int	philo_get_data(t_data *data, char **args, const int n)
 {
 	if (!philo_parse_input(args, n))
 		return (0);
-	data->number_of_philos = GET_ARG(NUMBER_OF_PHILOS);
+	data->number_philos = GET_ARG(NUMBER_OF_PHILOS);
 	data->time_to_eat = GET_ARG(T_EAT);
 	data->time_to_sleep = GET_ARG(T_SLEEP);
 	data->time_to_die = GET_ARG(T_DIE);
 
-	if (!data->number_of_philos || !data->time_to_die || !data->time_to_sleep
+	if (!data->number_philos || !data->time_to_die || !data->time_to_sleep
 		|| !data->time_to_eat)
 		return (0);
 
@@ -51,9 +51,9 @@ int	philo_get_data(t_data *data, char **args, const int n)
 	data->notepme = GET_ARG(NOTEPME);
 
 	data->started_time = philo_time(0);
-	data->should_stop = 0;
+	data->should_stop = FALSE;
 	
-	data->forks = philo_mutex_init(data->number_of_philos);
+	data->forks = philo_mutex_init(data->number_philos);
 	if (data->forks == NULL)
 		return (0);
 	data->routine = philo_routine;

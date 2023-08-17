@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:41:01 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/14 20:25:20 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/17 14:04:29 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	philo_join(t_philo *philo)
 {
-	const size_t size = philo->data->number_of_philos;
+	const size_t size = philo->data->number_philos;
 	size_t	i;
 
 	i = 0;

@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/14 20:07:30 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/17 17:18:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@
 #define RIGHT philo->id % philo->data->number_of_philos
 #define LEFT philo->id - 1
 
+#define TRUE 1
+#define FALSE 0
 
 enum e_philo_input
 {
@@ -46,7 +48,7 @@ typedef void *(*t_func_ptr)(void *);
 
 typedef struct s_data
 {
-	size_t	number_of_philos;
+	size_t	number_philos;
 	size_t	time_to_eat;
 	size_t	time_to_sleep;
 	size_t	time_to_think;
@@ -54,8 +56,9 @@ typedef struct s_data
 	size_t	notepme;
 	size_t	started_time;
 	int		should_stop;
-	t_mutex		last_meal_mutex;
+	t_mutex		has_ate;
 	t_mutex		should_stop_mutex;
+	t_mutex		last_meal_mutex;
 	t_mutex		*forks;
 	t_func_ptr routine;
 }	t_data;
@@ -66,8 +69,8 @@ typedef struct s_philo
 	int 		right_hand;
 	int 		left_hand;
 	int			has_ate;
+	int			should_stop;
 	size_t		last_meal;
-	size_t		died_time;
 	t_data		*data;
 	pthread_t	thread;
 }	t_philo;
@@ -77,7 +80,6 @@ void	philo_sleep_think(t_philo *philo);
 
 
 int		philo_get_data(t_data *data, char **args, const int n);
-int	  	*philo_fill(int n, size_t size);
 int	  	philo_join(t_philo *philos);
 
 
