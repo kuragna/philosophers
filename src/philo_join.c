@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:41:01 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/17 14:04:29 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/18 17:22:24 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,10 @@
 
 int	philo_join(t_philo *philo)
 {
-	const size_t size = philo->data->number_philos;
 	size_t	i;
 
 	i = 0;
-	while (i < size)
+	while (i < philo->data->number_philos)
 	{
 		if (pthread_join(philo[i].thread, NULL) != 0)
 			return (0);

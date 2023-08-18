@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/17 13:34:34 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/18 17:31:57 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,9 +53,9 @@ int	philo_get_data(t_data *data, char **args, const int n)
 	data->started_time = philo_time(0);
 	data->should_stop = FALSE;
 	
-	data->forks = philo_mutex_init(data->number_philos);
-	if (data->forks == NULL)
-		return (0);
+// 	data->forks = philo_mutex_init(data->number_philos);
+// 	if (data->forks == NULL)
+// 		return (-1);
 	data->routine = philo_routine;
 
 	if (data->notepme)

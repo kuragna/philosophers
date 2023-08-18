@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/17 17:18:40 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/18 17:06:43 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,8 @@ typedef struct s_data
 	size_t	notepme;
 	size_t	started_time;
 	int		should_stop;
-	t_mutex		has_ate;
 	t_mutex		should_stop_mutex;
-	t_mutex		last_meal_mutex;
+	t_mutex		*last_meal_mutex;
 	t_mutex		*forks;
 	t_func_ptr routine;
 }	t_data;
@@ -69,7 +68,7 @@ typedef struct s_philo
 	int 		right_hand;
 	int 		left_hand;
 	int			has_ate;
-	int			should_stop;
+	int			*should_stop;
 	size_t		last_meal;
 	t_data		*data;
 	pthread_t	thread;
