@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/11 18:50:47 by aabourri          #+#    #+#             */
-/*   Updated: 2023/07/16 16:43:16 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/19 17:43:29 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,33 +15,30 @@ static int	ft_isspace(int c)
 	if (c == ' ' || c == '\f' || c == '\n'
 		|| c == '\r' || c == '\t' || c == '\v')
 		return (1);
-	return (0);	
+	return (0);
 }
 
 int	ft_atoi(const char *str)
 {
 	int	re;
-	int	i;
 	int	sign;
 
 	if (!str)
 		return (0);
-	i = 0;
 	sign = 1;
 	re = 0;
-	while (ft_isspace(str[i]))
-		i++;
-	if (str[i] == '-' && str[i + 1] != '+')
+	while (ft_isspace(*str))
+		str++;
+	if (*str == '-' || *str == '+')
 	{
-		i++;
-		sign = -1;
+		if (*str == '-')
+			sign = -1;
+		str++;
 	}
-	if (str[i] == '+')
-		i++;
-	while ((48 <= str[i] && 57 >= str[i]))
+	while ((48 <= *str && 57 >= *str))
 	{
-		re = re * 10 + (int)(str[i] - 48);
-		i++;
+		re = re * 10 + (int)(*str - 48);
+		str++;
 	}
 	return (re * sign);
 }

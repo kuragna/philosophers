@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/18 17:06:43 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/19 19:32:38 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,7 @@ typedef struct s_philo
 	int 		right_hand;
 	int 		left_hand;
 	int			has_ate;
-	int			*should_stop;
+	int			should_stop;
 	size_t		last_meal;
 	t_data		*data;
 	pthread_t	thread;
@@ -81,18 +81,20 @@ void	philo_sleep_think(t_philo *philo);
 int		philo_get_data(t_data *data, char **args, const int n);
 int	  	philo_join(t_philo *philos);
 
+int		philo_error(void *ptr, const char *str);
 
 void	philo_eat(t_philo *philo);
 void	*philo_routine(void *arg);
 void	*philo_routine_each_time(void *arg);
 
-void	philo_reset_mem(t_philo *philo);
+int		philo_reset_mem(t_philo *philo);
 
 size_t	philo_time(size_t started_time);
 
-t_mutex	*philo_mutex_init(const int size);
-int		ft_atoi(const char *str);
+t_mutex	*philo_mutex_init(const size_t size);
+int		philo_mutex_destroy(t_philo *philo);
 
+int		ft_atoi(const char *str);
 void	find_leaks(void);
 
 #endif // PHILO_H

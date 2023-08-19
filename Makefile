@@ -1,11 +1,11 @@
 NAME		= philo
 CC			= gcc
-CFLAGS		= -Wall -Werror -Wextra -g3 -fsanitize=thread
+CFLAGS		= -Wall -Werror -Wextra -g3 #-fsanitize=thread
 RM			= rm -fr
 SRC			= main.c \
 			  ft_atoi.c \
+			  philo_error.c \
 			  philo_mutex_init.c \
-			  philo_fill.c \
 			  philo_join.c \
 			  philo_time.c \
 			  philo_get_data.c \

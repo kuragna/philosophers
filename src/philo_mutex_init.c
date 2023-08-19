@@ -6,15 +6,15 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:37:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/18 14:09:37 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/19 19:18:16 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-t_mutex	*philo_mutex_init(const int size)
+t_mutex	*philo_mutex_init(const size_t size)
 {
-	int	i;
+	size_t	i;
 	t_mutex	*mutex;
 
 	i = 0;
