@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/19 19:32:38 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/21 15:39:38 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,11 +53,13 @@ typedef struct s_data
 	size_t	time_to_sleep;
 	size_t	time_to_think;
 	size_t	time_to_die;
-	size_t	notepme;
 	size_t	started_time;
+	int		notepme;
 	int		should_stop;
+	int		evil;
 	t_mutex		should_stop_mutex;
-	t_mutex		*last_meal_mutex;
+// 	t_mutex		*last_meal_mutex;
+	t_mutex		*death_mutex;
 	t_mutex		*forks;
 	t_func_ptr routine;
 }	t_data;
@@ -69,6 +71,7 @@ typedef struct s_philo
 	int 		left_hand;
 	int			has_ate;
 	int			should_stop;
+	int			eat_count;
 	size_t		last_meal;
 	t_data		*data;
 	pthread_t	thread;

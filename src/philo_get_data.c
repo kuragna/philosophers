@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:40:05 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/19 19:34:46 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/21 15:43:35 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,16 +49,14 @@ int	philo_get_data(t_data *data, char **args, const int size)
 	data->notepme = GET_ARG(NOTEPME);
 	data->started_time = philo_time(0);
 	data->should_stop = FALSE;
-	data->last_meal_mutex = philo_mutex_init(data->number_philos);
-	if (!data->last_meal_mutex)
+	data->death_mutex = philo_mutex_init(data->number_philos);
+	if (!data->death_mutex)
 		return (philo_error(NULL, "Error: Could not initial mutex"));
 	data->forks = philo_mutex_init(data->number_philos);
 	if (!data->forks)
-		return (philo_error(
-				data->last_meal_mutex,
-				"Error: Could not initial mutex"));
-	data->routine = philo_routine;
-	if (data->notepme)
-		data->routine = philo_routine_each_time;
+		return (philo_error(data->death_mutex, "Error: Could not initial mutex"));
+// 	data->routine = philo_routine; // TODO: change it to variable count time each philosopher eats
+// // 	if (data->notepme)
+// // 		data->routine = philo_routine_each_time;
 	return (TRUE);
 }
