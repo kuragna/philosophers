@@ -10,7 +10,6 @@ SRC			= main.c \
 			  philo_time.c \
 			  philo_get_data.c \
 			  philo_reset_mem.c \
-			  philo_routine_each_time.c \
 			  find_leaks.c 
 SRC			:= $(addprefix src/, $(SRC))
 OBJS		= $(SRC:.c=.o)

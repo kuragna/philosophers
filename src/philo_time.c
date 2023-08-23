@@ -6,7 +6,7 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:41:17 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/19 21:11:08 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/21 18:36:40 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 size_t	philo_time(size_t started_time)
 {
 	struct timeval	tv;
-	size_t	current_time;
+	size_t			current_time;
 
 	if (gettimeofday(&tv, NULL) == -1)
 		return (-1);
