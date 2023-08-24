@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/23 14:34:16 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/08/24 20:20:03 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,14 +41,18 @@ typedef pthread_mutex_t	t_mutex;
 
 typedef struct s_data
 {
-	size_t	number_philos;
-	size_t	time_to_eat;
-	size_t	time_to_sleep;
-	size_t	time_to_think;
-	size_t	time_to_die;
-	size_t	meal_number;
-	size_t	started_time;
-	int		should_stop;
+	size_t		number_philos;
+	size_t		time_to_eat;
+	size_t		time_to_sleep;
+	size_t		time_to_think;
+	size_t		time_to_die;
+	size_t		meal_number;
+	size_t		started_time;
+	int			meal_flag;
+	bool		should_stop;
+	bool		log;
+	t_mutex		log_mutex;
+	t_mutex		meal_mutex;
 	t_mutex		should_stop_mutex;
 	t_mutex		*death_mutex;
 	t_mutex		*forks;
@@ -57,10 +61,10 @@ typedef struct s_data
 typedef struct s_philo
 {	
 	int			id;
+	int			should_stop;
 	bool		right_hand;
 	bool		left_hand;
-	int			has_ate;
-	int			should_stop;
+	bool		has_eaten;
 	size_t		eat_count;
 	size_t		last_meal;
 	pthread_t	thread;
@@ -82,7 +86,8 @@ void	philo_eat(t_philo *philo);
 void	*philo_routine(void *arg);
 void	philo_sleep_think(t_philo *philo);
 void	*philo_routine_each_time(void *arg);
-void	philo_pick_fork(int id, int idx, bool *hand, t_data *data);
+// void	philo_pick_fork(int id, int idx, bool *hand, t_data *data);
+void	philo_pick_fork(t_philo *philo, const int pos, bool *hand);
 
 t_mutex	*philo_mutex_init(const size_t size);
 
