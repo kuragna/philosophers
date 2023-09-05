@@ -6,7 +6,7 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/07 21:10:44 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/24 20:20:03 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/05 14:03:57 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,85 +14,81 @@
 # define PHILO_H
 
 # include <stdio.h>
-# include <stdlib.h>
 # include <pthread.h>
 # include <sys/time.h>
 # include <unistd.h>
 # include <string.h>
 # include <stdbool.h> 
-
-#define M_SEC 1000
-#define LEFT philo->id - 1
-#define RIGHT philo->id % philo->data->number_philos
-#define PHILO_TIME() philo_time(philo->data->started_time)
-#define PHILO_ARG(time) ft_atoi(args[time])
+# include "./philo_mem.h" // manage memory
 
 enum e_philo_input
 {
-	NUMBER_OF_PHILOS = 0,
+	PHILO_NUMBER = 0,
 	T_DIE,
 	T_EAT,
 	T_SLEEP,
 	MEAL_NUMBER,
-	T_THINK,
 };
 
 typedef pthread_mutex_t	t_mutex;
 
 typedef struct s_data
 {
-	size_t		number_philos;
+	size_t		philo_number;
 	size_t		time_to_eat;
 	size_t		time_to_sleep;
-	size_t		time_to_think;
 	size_t		time_to_die;
-	size_t		meal_number;
 	size_t		started_time;
-	int			meal_flag;
+	size_t		meal_number;
+	size_t		meal_flag;
 	bool		should_stop;
 	bool		log;
 	t_mutex		log_mutex;
+	t_mutex		eat_mutex;
+	t_mutex		stop_mutex;
 	t_mutex		meal_mutex;
-	t_mutex		should_stop_mutex;
-	t_mutex		*death_mutex;
 	t_mutex		*forks;
+	t_mem		*mem;
 }	t_data;
 
 typedef struct s_philo
-{	
+{
 	int			id;
-	int			should_stop;
-	bool		right_hand;
-	bool		left_hand;
-	bool		has_eaten;
+	bool		should_stop;
+	size_t		start_time;
 	size_t		eat_count;
-	size_t		last_meal;
+	long long	last_meal;
 	pthread_t	thread;
 	t_data		*data;
 }	t_philo;
 
+void		philo_usleep(long long time);
 
+int			ft_atoi(const char *str);
 
-int		ft_atoi(const char *str);
-int	  	philo_join(t_philo *philos);
-int		philo_reset_mem(t_philo *philo);
-int		philo_mutex_destroy(t_philo *philo);
-int		philo_get_data(t_data *data, char **args, const int n);
+void		philo_log(t_philo *philo, const char *str);
 
-size_t	philo_time(size_t started_time);
-bool	philo_error(void *ptr, const char *str);
+void		philo_death(t_philo *philo);
 
-void	philo_eat(t_philo *philo);
-void	*philo_routine(void *arg);
-void	philo_sleep_think(t_philo *philo);
-void	*philo_routine_each_time(void *arg);
-// void	philo_pick_fork(int id, int idx, bool *hand, t_data *data);
-void	philo_pick_fork(t_philo *philo, const int pos, bool *hand);
+bool		philo_join(t_philo *philos);
 
-t_mutex	*philo_mutex_init(const size_t size);
+bool		philo_get_data(t_data *data, char **args);
 
+bool		philo_check_input(char **args, const int args_size);
 
+bool		philo_error(const char *str);
 
-void	find_leaks(void);
+void		philo_eat(t_philo *philo);
+
+void		philo_sleep_think(t_philo *philo);
+
+void		find_leaks(void);
+
+bool		philo_mutex_init(t_data *data);
+
+// void		philo_mutex_destroy(t_data *data);
+bool		philo_mutex_destroy(t_data *data);
+
+long long	philo_get_time(void);
 
 #endif // PHILO_H

@@ -6,26 +6,32 @@
 /*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/07/31 13:37:13 by aabourri          #+#    #+#             */
-/*   Updated: 2023/08/19 19:18:16 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/04 18:28:13 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo.h"
 
-t_mutex	*philo_mutex_init(const size_t size)
+bool	philo_mutex_init(t_data *data)
 {
+	int		err;
 	size_t	i;
-	t_mutex	*mutex;
 
 	i = 0;
-	mutex = malloc(sizeof(*mutex) * size);
-	if (mutex == NULL)
-		return (NULL);
-	while (i < size)
+	if (pthread_mutex_init(&data->log_mutex, NULL) != 0)
+		return (false);
+	if (pthread_mutex_init(&data->eat_mutex, NULL) != 0)
+		return (false);
+	if (pthread_mutex_init(&data->stop_mutex, NULL) != 0)
+		return (false);
+	if (pthread_mutex_init(&data->meal_mutex, NULL) != 0)
+		return (false);
+	while (i < data->philo_number)
 	{
-		if (pthread_mutex_init(mutex + i, NULL) == -1)
-			return (NULL);
+		err = pthread_mutex_init(data->forks + i, NULL);
+		if (err != 0)
+			return (false);
 		i += 1;
 	}
-	return (mutex);
+	return (true);
 }

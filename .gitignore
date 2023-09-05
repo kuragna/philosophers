@@ -1,6 +1,7 @@
-philo
 *.dSYM
 *.o
 main
 test.c
 *.swp
+*.tx
+LazyPhilosophersTester
