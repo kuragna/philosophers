@@ -18,9 +18,7 @@ bool	philo_check_input(char **args, const int args_size)
 		{
 			if (!(48 <= *arg && 57 >= *arg))
 			{
-// 				return (philo_error("Error: Invalid arguments\n"));
-				printf("Error: Invalid arguments\n");
-				return false;
+				return (philo_error("Error: Invalid arguments\n"));
 			}
 			arg++;
 		}
@@ -40,7 +38,9 @@ bool	philo_get_data(t_data *data, char **args)
 		return (philo_error("Error: Invalid arguments\n"));
 	data->meal_number = ft_atoi(args[MEAL_NUMBER]);
 	data->sem_name = "/philo";
+	data->log = true;
 	data->forks = sem_open(data->sem_name, O_CREAT, 0644, data->philo_number);
+	data->die = sem_open(data->sem_die_name, O_CREAT, 0644, 1);
 	if (data->forks == SEM_FAILED)
 	{
 		// TODO: Maybe need to unlink semaphore name.
