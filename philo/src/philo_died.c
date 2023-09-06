@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_died.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/02 18:13:51 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/04 16:53:44 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/06 13:51:54 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ static bool	philo_is_dead(t_philo *philo)
 	}
 	if (dead_time >= (long long)philo->data->time_to_die)
 	{
+		// TODO: replace philo_log with printf.ee
 		philo_log(philo, "died");
 		test(&philo->data->log_mutex, &philo->data->log, false);
 		return (true);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_utils.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/08/31 20:13:24 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/05 18:11:19 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/06 16:20:39 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,8 @@ bool	philo_get_data(t_data *data, char **args)
 	data->time_to_die = ft_atoi(args[T_DIE]);
 	data->time_to_eat = ft_atoi(args[T_EAT]);
 	data->time_to_sleep = ft_atoi(args[T_SLEEP]);
-	if (!data->philo_number || !data->time_to_die || !data->time_to_sleep
-		|| !data->time_to_eat)
+	if ((int)data->philo_number <= 0 || (int)data->time_to_die <= 0
+		|| (int)data->time_to_eat <= 0 || (int)data->time_to_sleep <= 0)
 		return (philo_error("Error: Invalid arguments\n"));
 	data->meal_number = ft_atoi(args[MEAL_NUMBER]);
 	data->meal_flag = 0;
