@@ -1,8 +1,13 @@
 #include "../include/philo_bonus.h"
 
 #include <signal.h>
+// TODO: make sure to unlink and close semaphore before kill process manually
+// TODO: fix more than 123 philosophers.
+// NOTE: 1 - cant access from outside
 
 #define LOG(str) philo_log(philo, str)
+
+#define EXIT_MEAL 42
 
 long long	philo_get_time(void)
 {
@@ -23,10 +28,12 @@ void	philo_usleep(long long time)
 
 void	philo_log(t_philo *philo, const char *str)
 {
-	if (philo->data->log)
-	{
-		printf("%lld %d [pid: %d] %s\n", GET_TIME(), philo->id, getpid(), str);
-	}
+	const long long curr_time = philo_get_time() - philo->data->started_time;
+
+// 	if (philo->log)
+// 	{
+		printf("%lld %d %s\n", curr_time, philo->id, str);
+// 	}
 }
 
 void	philo_routine(t_philo *philo)
@@ -37,15 +44,14 @@ void	philo_routine(t_philo *philo)
 	LOG("has taken a fork");
 	LOG("is eating");
 	philo_usleep(philo->data->time_to_eat);
-	philo->last_meal = GET_TIME();
-	philo->meal_number -= 1;
+	philo->last_meal = philo_get_time() - philo->data->started_time;
 	sem_post(philo->data->forks);
 	sem_post(philo->data->forks);
 	LOG("is sleeping");
 	philo_usleep(philo->data->time_to_sleep);
 	LOG("is thinking");
+	philo->meal_number += 1;
 }
-
 
 void	*routine(void *arg)
 {
@@ -53,64 +59,57 @@ void	*routine(void *arg)
 
 	while (true)
 	{
-		if (philo->data->meal_number && philo->meal_number == 0)
-			return NULL;
+// 		philo->start_time = philo_get_time();
+		if (philo->data->meal_number && philo->meal_number == philo->data->meal_number)
+		{
+			philo->exit_flag = true;
+			return (NULL);
+		}
 		philo_routine(philo);
 	}
-	return NULL;
+	return (NULL);
 }
 
 int	main(int argc, char **argv)
 {
 	t_data	data;
-	data.sem_name = "/philo";
-	data.sem_die_name = "/die";
 
-	if (!philo_check_input(argv + 1, argc - 1))
-	{
-		sem_unlink(data.sem_name); // TODO: need to remove it
-		sem_unlink(data.sem_die_name);
+	if (!philo_get_data(&data, argv + 1, argc - 1))
 		return (1);
-	}
-
-	if (!philo_get_data(&data, argv + 1))
-		return (1);
-
-
 	philo_init(&data);
-	
 	sem_close(data.forks);
 	sem_unlink(data.sem_name);
-	return 0;
+	return (0);
 }
+
 
 void	philo_thread(t_philo *philo)
 {
 	int			err;
+// 	long long	last_meal;
 	long long	die_time;
 
+	philo->start_time = philo_get_time();
 	err = pthread_create(&philo->thread, NULL, routine, philo);
 	if (err != 0)
 	{
 		philo_error("Error: Could not create thread\n");
 		exit(EXIT_FAILURE);
 	}
-
 	while (true)
 	{
-		size_t	last_meal = philo->last_meal;
-		die_time = (philo_get_time() - philo->data->started_time) - last_meal;
-		if (die_time == (long long)philo->data->time_to_die)
+		die_time = (philo_get_time() - philo->data->started_time) - philo->last_meal;
+		if (die_time >= (long long)philo->data->time_to_die)
 		{
-			printf("%lld %d died\n", GET_TIME(), philo->id);
-			exit(0);
+			sem_wait(philo->data->death);
+			printf("%lld %d died\n", die_time, philo->id);
+			exit(EXIT_SUCCESS);
 		}
-		if (philo->meal_number == 0 && philo->data->meal_number)
+		if (philo->exit_flag)
 		{
-			exit(0);
+			exit(EXIT_MEAL);
 		}
 	}
-
 	err = pthread_join(philo->thread, NULL);
 	if (err != 0)
 	{
@@ -119,60 +118,82 @@ void	philo_thread(t_philo *philo)
 	}
 }
 
-// TODO: make sure to unlink and close semaphore before kill process manually
+// TODO: check memory leaks
+// TODO: fix timestamp
+// TODO: fix data race
+// TODO: make processes start at the same time
+
+void	philo_death(t_philo *philo);
 
 bool	philo_init(t_data *data)
 {
 	t_philo	*philo;
 	size_t	i;
+	int		status;
 
 	philo = malloc(sizeof(*philo) * data->philo_number);
-
 	if (philo == NULL)
 	{
 		sem_unlink(data->sem_name); // TODO: check for error
 		sem_close(data->forks);
-		return (philo_error("Error: Failed to allocate memory\n"));
+		philo_error("Error: Failed to allocate memory\n");
 	}
-// 	i = 0;
-// 	while (i < data->philo_number)
-// 	{
-// 		philo[i].id = i + 1;
-// 		philo[i].data = data;
-// 		i += 1;
-// 	}
-	i = 0;
+	i = -1;
 	data->started_time = philo_get_time();
-	while (i < data->philo_number)
+	while (++i < data->philo_number)
 	{
 		philo[i].id = i + 1;
 		philo[i].data = data;
+		philo[i].meal_number = 0;
 		philo[i].pid = fork();
-		philo[i].meal_number = data->meal_number;
+		philo[i].exit_flag = false;
 		if (philo[i].pid == -1)
 		{
-			philo_error("Error: Could not create a process\n");
 			sem_unlink(data->sem_name);
 			sem_close(data->forks);
+			philo_error("Error: Could not create a process\n");
 			exit(EXIT_FAILURE);
 		}
 		if (philo[i].pid == 0)
-		{
-			philo_thread(philo + i);		
-		}
-		i += 1;
+			philo_thread(philo + i);
 	}
-	i = -1;
-	while (++i < data->philo_number)
+	size_t	exit_count = 0;
+	while (true)
 	{
-	if (waitpid(philo[i].pid, NULL, 0) == -1)
+		for (size_t k = 0; k < data->philo_number; k++)
 		{
-			philo_error("Error: Failed to wait process\n");
-			sem_unlink(data->sem_name);
-			sem_close(data->forks);
-			exit(EXIT_FAILURE);
+			waitpid((pid_t)-1, &status, 0);
+			if (WEXITSTATUS(status) == EXIT_MEAL)
+			{
+				exit_count += 1;
+			}
+			if (exit_count == data->philo_number)
+			{
+				return (true);
+			}
 		}
 	}
+#if 0
+		waitpid((pid_t)-1, &status, 0);
+		if (WEXITSTATUS(status) == EXIT_MEAL)
+		{
+			count += 1;
+			printf("count: %ld\n", count);
+			if (count == data->philo_number)
+				return (true);
+		}
+		else if (WIFEXITED(status))
+		{
+			printf("wstatus: %d\n", WEXITSTATUS(status));
+			i = 0;
+			while (i < data->philo_number)
+			{
+				kill(philo[i].pid, SIGKILL);
+				i += 1;
+			}
+			return (true);
+		}
+#endif
 	return (true);	
 }
 
