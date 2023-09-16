@@ -6,12 +6,12 @@
 /*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 17:51:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/11 13:21:27 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/16 20:05:45 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PHILO_BONUS_H
-#define PHILO_BONUS_H
+# define PHILO_BONUS_H
 
 # include <stdio.h>
 # include <pthread.h>
@@ -21,6 +21,11 @@
 # include <stdbool.h> 
 # include <semaphore.h>
 # include <stdlib.h>
+# include <fcntl.h>
+# include <signal.h>
+
+# define EXIT_MEAL 1
+# define EXIT_DIED 0
 
 enum	e_philo_input
 {
@@ -38,34 +43,27 @@ typedef struct s_data
 	size_t		time_to_sleep;
 	size_t		time_to_die;
 	size_t		meal_number;
-	long long 	started_time;
-	bool		log;
-	const char	*sem_name;
-	const char	*death_sem_name;
-	sem_t		*death;
+	long long	started_time;
 	sem_t		*forks;
+	sem_t		*block;
 }	t_data;
 
 typedef struct s_philo
 {
 	int			id;
-	bool		should_stop;
-	bool		exit_flag;
-	bool		log;
-	size_t		eat_count;
 	size_t		meal_number;
-	long long	start_time;
 	long long	last_meal;
-	pthread_t	thread;
-	pid_t		pid; // proccess id
+	pid_t		pid;
 	t_data		*data;
 }	t_philo;
 
-// bool	philo_check_input(char **args, const int args_size);
-bool	philo_get_data(t_data *data, char **args, const int args_size);
-bool	philo_error(const char *str);
-int		ft_atoi(const char *str);
-bool	philo_init(t_data *data);
-
+bool		philo_sem_init(sem_t **sem, const char *sem_name, int sem_size);
+bool		philo_get_data(t_data *data, char **args, const size_t args_size);
+bool		philo_error(const char *str);
+int			ft_atoi(const char *str);
+void		philo_log(t_philo *philo, const char *str);
+long long	philo_get_time(void);
+void		philo_usleep(const long long time, t_philo *philo);
+void		philo_destroy(t_data *data, const char *str);
 
 #endif //PHILO_BONUS_H
