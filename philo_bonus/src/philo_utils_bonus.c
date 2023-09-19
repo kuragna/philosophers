@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_utils_bonus.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/06 20:37:27 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/16 20:00:55 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/17 17:20:54 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,7 +51,7 @@ bool	philo_sem_init(sem_t **sem, const char *sem_name, int sem_size)
 	return (true);
 }
 
-bool	philo_get_data(t_data *data, char **args, const size_t args_size)
+bool	philo_get_data(t_data *data, char **args, const int args_size)
 {
 	if (!philo_check_input(args, args_size))
 		return (false);
@@ -63,6 +63,8 @@ bool	philo_get_data(t_data *data, char **args, const size_t args_size)
 		|| (int)data->time_to_sleep <= 0 || (int)data->time_to_eat <= 0)
 		return (philo_error("Error: Invalid arguments\n"));
 	data->meal_number = ft_atoi(args[MEAL_NUMBER]);
+	if ((int)data->meal_number < 0)
+		return (philo_error("Error: Invalid arguments\n"));
 	if (!philo_sem_init(&data->forks, "forks", data->philo_number))
 		return (false);
 	if (!philo_sem_init(&data->block, "block", 1))

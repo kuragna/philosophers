@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/16 18:46:19 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/16 20:08:28 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/17 18:52:00 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/philo_bonus.h"
 
-// TODO: fix 200 philosophers.
+// TODO: Fix print nothing after die
+// TODO: Fix 200 philosophers
 
 static void	philo_routine(t_philo *philo)
 {
@@ -33,7 +34,7 @@ static void	philo_routine(t_philo *philo)
 	philo->meal_number -= 1;
 }
 
-static void	routine(t_philo *philo)
+static void	philo_process(t_philo *philo)
 {
 	philo->meal_number = philo->data->meal_number;
 	while (true)
@@ -76,9 +77,9 @@ static bool	philo_init(t_data *data)
 	size_t	i;
 
 	philo = malloc(sizeof(*philo) * data->philo_number);
-	memset(philo, 0, sizeof(*philo) * data->philo_number);
 	if (philo == NULL)
 		philo_destroy(data, "Error: Failed to allocate memory\n");
+	memset(philo, 0, sizeof(*philo) * data->philo_number);
 	i = -1;
 	data->started_time = philo_get_time();
 	while (++i < data->philo_number)
@@ -92,7 +93,7 @@ static bool	philo_init(t_data *data)
 			philo_destroy(data, "Error: Could not create child process\n");
 		}
 		if (philo[i].pid == 0)
-			routine(philo + i);
+			philo_process(philo + i);
 	}
 	philo_is_died(philo, data->philo_number);
 	free(philo);

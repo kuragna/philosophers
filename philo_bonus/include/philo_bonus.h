@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: aabourri <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: aabourri <aabourri@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/05 17:51:39 by aabourri          #+#    #+#             */
-/*   Updated: 2023/09/16 20:05:45 by aabourri         ###   ########.fr       */
+/*   Updated: 2023/09/17 17:56:31 by aabourri         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,13 +57,13 @@ typedef struct s_philo
 	t_data		*data;
 }	t_philo;
 
-bool		philo_sem_init(sem_t **sem, const char *sem_name, int sem_size);
-bool		philo_get_data(t_data *data, char **args, const size_t args_size);
-bool		philo_error(const char *str);
 int			ft_atoi(const char *str);
+bool		philo_sem_init(sem_t **sem, const char *sem_name, int sem_size);
+bool		philo_get_data(t_data *data, char **args, const int args_size);
+bool		philo_error(const char *str);
 void		philo_log(t_philo *philo, const char *str);
-long long	philo_get_time(void);
 void		philo_usleep(const long long time, t_philo *philo);
 void		philo_destroy(t_data *data, const char *str);
+long long	philo_get_time(void);
 
 #endif //PHILO_BONUS_H
